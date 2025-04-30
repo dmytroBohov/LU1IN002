@@ -1,62 +1,95 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
-typedef struct _cellule_t cellule_t;
-struct _cellule_t{
- int donnee;
- cellule_t *suivant;
+struct cell{
+	int val;
+	struct cell *suiv;
 };
 
-cellule_t *cons(int val, cellule_t *pListe){
- cellule_t *el;
+struct s_fifo{
+	struct cell *first;
+	struct cell *last;
+};
+typedef struct s_fifo fifo;
 
- el = malloc(sizeof(cellule_t));
- if (el == NULL) return NULL;
- el->donnee = val;
- el->suivant = pListe;
- return el;
-}
-
-void Afficher(cellule_t *pListe){
-	cellule_t *cell = pListe;
-	while(cell != NULL){
-		printf("%d\n", cell->donnee);
-		cell = cell->suivant;
+void print_fifo(fifo xs){
+	struct cell *c = xs.first;
+	printf("[");
+	while (c != NULL) {
+	   printf("(%d)", c->val);
+	   c = c->suiv;
 	}
+	  printf("]\n");
 }
 
-// cellule_t* f(cellule_t* liste){
-//     cellule_t *tmp;
-//     tmp = liste;
-//     if(tmp == NULL) {
-//      return NULL;
-//     }
-//     while(tmp->suivant != NULL){
-//      tmp = tmp->suivant;
-//     }
-//     return tmp;
-// }
+fifo *new_fifo(){
+	fifo *new = malloc(sizeof(fifo));
+	new->first = NULL;
+	new->last = NULL;
+	return new;
+}
 
-cellule_t *f(int d, cellule_t *liste){
-    cellule_t *nCell;
-     if (liste == NULL) {
-       nCell = malloc(sizeof(cellule_t));
-       nCell->donnee = d;
-       nCell->suivant = NULL;
-       return nCell;
-     }
-     
-     liste->suivant = f(d, liste->suivant);
-     return liste;
+int is_empty(fifo xs){
+	return (xs.first == NULL && xs.last == NULL);
+}
+
+fifo *add(int x, fifo *xs){
+	if(xs == NULL){
+		xs = new_fifo();
+	}
+
+	struct cell *c = malloc(sizeof(struct cell));
+	c->val = x;
+	c->suiv = NULL;
+
+	if(is_empty(*xs)){
+		xs->first = c;
+		xs->last = c;
+	}
+	else{
+		xs->last->suiv = c;
+		xs->last = c;
+	}
+
+	return xs;
+}
+
+fifo *pop(fifo *xs){
+	if(!is_empty(*xs)){
+		struct cell *c = xs->first;
+
+		xs->first = xs->first->suiv;
+		free(c);
+		
+		if(xs->first == NULL)
+			xs->last = NULL;
+	}
+	return xs;
+}
+
+int peek(fifo *xs){
+	return xs->first->val;
+}
+
+int peekd(fifo *xs){
+	assert(!is_empty(*xs));
+	return xs->first->val;
 }
 
 int main(){
- cellule_t *ns = NULL, *x = NULL;
- ns = cons(17, ns);
- ns = cons(15, ns);
- ns = cons(12, ns);
- 
- ns = f(15, ns);
- Afficher(ns);
- return 0;
+	fifo *ma_file = new_fifo();
+
+	// print_fifo(*ma_file);
+
+	ma_file = add(3, ma_file);
+	ma_file = add(5, ma_file);
+	// ma_file = add(7, ma_file);
+
+	int val = peekd(ma_file);
+	printf("%d\n", val);
+	
+	// print_fifo(*ma_file);
+
+	return 0;
 } 

@@ -40,17 +40,34 @@ int recherche_rec_aux(int tab[], int taille, int indice, int val){
     }
 }
 
-int rechercher_f(int tab[], int taille, int val){
-    for(int i = 0; i < taille; i++){
-        if(tab[i] == val){
-            return 1;
-        }
-        else{
-            
-        }
-    }
-    return 0;
+int rechercher_v(int tab[], int taille, int val){
+    int gauche = 0, droite = taille - 1;
 
+    while (gauche <= droite) {
+        int milieu = gauche + (droite - gauche) / 2;
+
+        if (tab[milieu] == val)
+            return 1; // Valeur trouvée
+        if (tab[milieu] < val)
+            gauche = milieu + 1; // Chercher à droite
+        else
+            droite = milieu - 1; // Chercher à gauche
+    }
+    return 0; // Valeur non trouvée
+}
+
+int rechercher_rec_v(int tab[], int gauche, int droite, int val) {
+    if (gauche > droite)  
+        return 0;  // Valeur non trouvée
+
+    int milieu = gauche + (droite - gauche) / 2;
+
+    if (tab[milieu] == val)
+        return 1;  // Valeur trouvée
+    if (tab[milieu] < val)
+        return rechercher_rec_v(tab, milieu + 1, droite, val); // Chercher à droite
+    else
+        return rechercher_rec_v(tab, gauche, milieu - 1, val); // Chercher à gauche
 }
 
 int main(){
